@@ -1,123 +1,109 @@
 
 
-#plug board *2
-#enter keys/message
-#rotating gears 3 
-#reflector
-#bulb
-#send the string 
-#get answer in bulb 
+# Rotor wirings
+rotor_1 = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
+rotor_2 = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
+rotor_3 = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
+reflector = "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 
-#starting position of the rotors 
-#position fo rthe plugs 2,3
-#plug board pair switches 
+alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-'''
-requirements:
--lookup table for rotors positions 
--pointers for 3 rotor positions
--dictionry/lookuptable for internal rotor mapping,reflector
-- input letters converted to list
--output list/bulb 
--dictionary form input plugs
--dictionary for rotor notches
+rotor_1_pos = 0
+rotor_2_pos = 0
+rotor_3_pos = 0
 
-process:
--set rotor positions
--set plug positions
+plugboard_dict = {'A': 'B', 'B': 'A', 'C': 'D', 'D': 'C'}
 
--put in values/ asci
--gets converted gets converted to a list 
--checks in plugs for switching
--then that pointer goes to each of the rotors 
--the values goes throught the reflector 
--coomes throught the dictionary/plug board
--output list 
--display output list
-
-'''
-
-'''
-#defines
-fleet_pos
-fleet_pos_l
-fleet_pos_plg1
-rotor_list=[1 to 26]
-digits=26
-
-ptr_ctr_1=0
-ptr_ctr_2=0
-ptr_ctr_3=0
-
-#fucntion
-def convert_to_list(a,b):
-
-def plugboard(b,a):
-for i in b:
-if i in dict_plugboard:
-    a.append(i.value)
-
-def rotor(num,fleet_pos,rotot_out)
-    ptr=rotor_num_ptr.value
-    dict_rotor=rotor_num_dict_ptr.value
-    notch_rtr=rotor_num_notch.value or pointer
-
-    rotate=[]
-
-    if num==1:
-        ptr=rotor_list[ptr+1]
-        if ptr_ctr1>26:
-            ptr_ctr1=0
-
+def plugboard(letter):
+    if letter in plugboard_dict:
+        return plugboard_dict[letter]
     else:
-        if ptr_ctr1 
+        return letter
 
-    for i in fleet pos:
-        if ((i+ptr)>digits):
-            val=rotor_list[((i+ptr)-digits)+1]
-            rotate.append(val)
+def rotor_forward(letter, rotor, position):
 
-        else:
-            val=rotor_list[ptr+1]
-            rotate.append(val)
-                
-    for i in rotate:
-        rotor.append(dict_rotor.value(i))         
+    index = alphabet.index(letter)
+    
+    index = (index + position) % 26
+    
+    new_letter = rotor[index]
+    
+    new_index = alphabet.index(new_letter)
+    new_index = (new_index - position) % 26
+    
+    return alphabet[new_index]
 
-        
-def reflector(fleet_pos,fleet_out):
-    for i in fleet_pos:
-        fleet_out.append(dict_reflector.value(i))        
+def rotor_backward(letter, rotor, position):
+    index = alphabet.index(letter)
 
-#main:
-ptr_rotor1=0
-ptr_rotor2=0
-ptr_rotor3=0
+    index = (index + position) % 26
+    
+    letter_to_find = alphabet[index]
+    new_index = rotor.index(letter_to_find)
+    
+    new_index = (new_index - position) % 26
+    
+    return alphabet[new_index]
 
-ptr_rotor1_notch=0
-ptr_rotor2_notch=0
-ptr_rotor3_notch=0
+def reflector_func(letter):
+    index = alphabet.index(letter)
+    return reflector[index]
 
-fleet_position=scan for value:
-convert_to_list(fleet_pos,fleet_pos_l)
-plugboard(fleet_pos_l,fleet_pos_plug)
+def rotate_rotors():
+    global rotor_1_pos, rotor_2_pos, rotor_3_pos
+    
+    rotor_1_pos = rotor_1_pos + 1
+    
+    if rotor_1_pos >= 26:
+        rotor_1_pos = 0
+        rotor_2_pos = rotor_2_pos + 1
+    
+    if rotor_2_pos >= 26:
+        rotor_2_pos = 0
+        rotor_3_pos = rotor_3_pos + 1
+    
+    if rotor_3_pos >= 26:
+        rotor_3_pos = 0
 
-rotor(1,fleet_pos_plug,fleet_pos_rot1)
-rotor(2,fleet_pos_plug,fleet_pos_rot2)
-rotor(3,fleet_pos_plug,fleet_pos_rot3)
+def encrypt_letter(letter):
+    if letter not in alphabet:
+        return letter
+    rotate_rotors()
+    
+    letter = plugboard(letter)
+    
+    letter = rotor_forward(letter, rotor_1, rotor_1_pos)
+    letter = rotor_forward(letter, rotor_2, rotor_2_pos)
+    letter = rotor_forward(letter, rotor_3, rotor_3_pos)
+    
+    letter = reflector_func(letter)
+    
+    letter = rotor_backward(letter, rotor_3, rotor_3_pos)
+    letter = rotor_backward(letter, rotor_2, rotor_2_pos)
+    letter = rotor_backward(letter, rotor_1, rotor_1_pos)
+    
+    letter = plugboard(letter)
+    
+    return letter
 
-reflector(fleet_pos_rot3,fleet_pos_ref)
 
-rotor(3,fleet_pos_ref,fleet_pos_rot3_en)
-rotor(2,fleet_pos_rot3_en,fleet_pos_rot2_en)
-rotor(1,fleet_pos_rot1_en,fleet_pos_rot1_en)
+message = "HELLO"
+output = ""
 
-plugboard(fleet_pos_rot1_en)
+for letter in message:
+    encrypted = encrypt_letter(letter)
+    output = output + encrypted
 
-bulb(fleet_pos_rot1_en)
+print("Input: " + message)
+print("Output: " + output)
 
+rotor_1_pos = 0
+rotor_2_pos = 0
+rotor_3_pos = 0
 
-#main func call
+decrypted = ""
+for letter in output:
+    decrypted_letter = encrypt_letter(letter)
+    decrypted = decrypted + decrypted_letter
 
-'''
-  
+print("Decrypted: " + decrypted)
